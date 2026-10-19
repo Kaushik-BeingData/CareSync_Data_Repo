@@ -1,0 +1,112 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-caresync-19"
+		},
+		"AzureSqlDatabase_audit_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'AzureSqlDatabase_audit'"
+		},
+		"LS_CareSync_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_CareSync'"
+		},
+		"LS_Postgres_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_Postgres'"
+		},
+		"AzureSqlDatabase_audit_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "beingdata-caresync.database.windows.net"
+		},
+		"AzureSqlDatabase_audit_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "sql-db-caresync"
+		},
+		"AzureSqlDatabase_audit_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "being_data"
+		},
+		"LS_CareSync_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://sahealthsync.dfs.core.windows.net/"
+		},
+		"LS_Postgres_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "ep-noisy-band-ao3qqcqy-pooler.c-2.ap-southeast-1.aws.neon.tech"
+		},
+		"LS_Postgres_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "neondb"
+		},
+		"LS_Postgres_properties_typeProperties_username": {
+			"type": "string",
+			"defaultValue": "neondb_owner"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "adf-caresync-19_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"AzureSqlDatabase_audit_password": {
+						"value": "[parameters('AzureSqlDatabase_audit_password')]"
+					},
+					"LS_CareSync_accountKey": {
+						"value": "[parameters('LS_CareSync_accountKey')]"
+					},
+					"LS_Postgres_password": {
+						"value": "[parameters('LS_Postgres_password')]"
+					},
+					"AzureSqlDatabase_audit_properties_typeProperties_server": {
+						"value": "[parameters('AzureSqlDatabase_audit_properties_typeProperties_server')]"
+					},
+					"AzureSqlDatabase_audit_properties_typeProperties_database": {
+						"value": "[parameters('AzureSqlDatabase_audit_properties_typeProperties_database')]"
+					},
+					"AzureSqlDatabase_audit_properties_typeProperties_userName": {
+						"value": "[parameters('AzureSqlDatabase_audit_properties_typeProperties_userName')]"
+					},
+					"LS_CareSync_properties_typeProperties_url": {
+						"value": "[parameters('LS_CareSync_properties_typeProperties_url')]"
+					},
+					"LS_Postgres_properties_typeProperties_server": {
+						"value": "[parameters('LS_Postgres_properties_typeProperties_server')]"
+					},
+					"LS_Postgres_properties_typeProperties_database": {
+						"value": "[parameters('LS_Postgres_properties_typeProperties_database')]"
+					},
+					"LS_Postgres_properties_typeProperties_username": {
+						"value": "[parameters('LS_Postgres_properties_typeProperties_username')]"
+					}
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

@@ -1,0 +1,45 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-caresync-19"
+		},
+		"AzureSqlDatabase_audit_password": {
+			"value": ""
+		},
+		"LS_CareSync_accountKey": {
+			"value": ""
+		},
+		"LS_Postgres_password": {
+			"value": ""
+		},
+		"AzureSqlDatabase_audit_properties_typeProperties_server": {
+			"value": "beingdata-caresync.database.windows.net"
+		},
+		"AzureSqlDatabase_audit_properties_typeProperties_database": {
+			"value": "sql-db-caresync"
+		},
+		"AzureSqlDatabase_audit_properties_typeProperties_userName": {
+			"value": "being_data"
+		},
+		"LS_CareSync_properties_typeProperties_url": {
+			"value": "https://sahealthsync.dfs.core.windows.net/"
+		},
+		"LS_Postgres_properties_typeProperties_server": {
+			"value": "ep-noisy-band-ao3qqcqy-pooler.c-2.ap-southeast-1.aws.neon.tech"
+		},
+		"LS_Postgres_properties_typeProperties_database": {
+			"value": "neondb"
+		},
+		"LS_Postgres_properties_typeProperties_username": {
+			"value": "neondb_owner"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
