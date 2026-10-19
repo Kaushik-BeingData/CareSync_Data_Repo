@@ -1,0 +1,12 @@
+{
+	"name": "AzureSqlTable_audit",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase_audit",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	}
+}
