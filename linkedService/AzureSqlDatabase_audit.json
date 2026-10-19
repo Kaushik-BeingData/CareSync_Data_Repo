@@ -1,0 +1,17 @@
+{
+	"name": "AzureSqlDatabase_audit",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"server": "beingdata-caresync.database.windows.net",
+			"database": "sql-db-caresync",
+			"encrypt": "mandatory",
+			"trustServerCertificate": false,
+			"authenticationType": "SQL",
+			"userName": "being_data",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDc4OUY0NjNGLTg0NDEtNDA2Ny04NzIxLTBDM0YzQzBENjJFMV8zNDYxNzc0Ny0wZmE5LTQ3NDAtODRmNy0yOGI3YTFlODY1MzgiDQp9"
+		}
+	}
+}
