@@ -50,7 +50,7 @@
 						"referenceName": "ds_trgt_postgres",
 						"type": "DatasetReference",
 						"parameters": {
-							"FolderName": "landing"
+							"FolderName": "Hospital"
 						}
 					}
 				]
