@@ -120,6 +120,84 @@
 						}
 					}
 				]
+			},
+			{
+				"name": "Landing_to_bronze",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Copy data_postgres",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/caresync_repo/landing_to_bronze",
+					"baseParameters": {
+						"Landing Timestamp": {
+							"value": "@variables('start_time')",
+							"type": "Expression"
+						},
+						"Source System": {
+							"value": "@activity('Lookup_get_table_data').output.firstRow.source_system",
+							"type": "Expression"
+						},
+						"Table Name": {
+							"value": "@activity('Lookup_get_table_data').output.firstRow.bronze_table_name",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureDatabricks_caresync",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Bronze_to_Silver",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Landing_to_bronze",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/caresync_repo/Bronze_to_Silver",
+					"baseParameters": {
+						"Landing Timestamp": {
+							"value": "@variables('start_time')",
+							"type": "Expression"
+						},
+						"Table Name": {
+							"value": "@activity('Lookup_get_table_data').output.firstRow.silver_table_name",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureDatabricks_caresync",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"parameters": {
