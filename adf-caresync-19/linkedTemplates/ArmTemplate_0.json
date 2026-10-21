@@ -7,6 +7,10 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "adf-caresync-19"
 		},
+		"AzureDatabricks_caresync_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'AzureDatabricks_caresync'"
+		},
 		"AzureSqlDatabase_audit_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'AzureSqlDatabase_audit'"
@@ -18,6 +22,10 @@
 		"LS_Postgres_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_Postgres'"
+		},
+		"AzureDatabricks_caresync_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "1020-173017-v8h7t6e3"
 		},
 		"AzureSqlDatabase_audit_properties_typeProperties_server": {
 			"type": "string",
@@ -52,6 +60,24 @@
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDatabricks_caresync')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-7405608434436284.4.azuredatabricks.net",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDatabricks_caresync_accessToken')]"
+					},
+					"existingClusterId": "[parameters('AzureDatabricks_caresync_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": []
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase_audit')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
@@ -222,172 +248,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_caresync_postgres')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy data_postgres",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "PostgreSqlV2Source",
-								"query": "select * from public.hospitals",
-								"queryTimeout": "02:00:00"
-							},
-							"sink": {
-								"type": "ParquetSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "ParquetWriteSettings"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "PostgreSqlTable1",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ds_trgt_postgres",
-								"type": "DatasetReference",
-								"parameters": {
-									"FolderName": "Hospital"
-								}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/PostgreSqlTable1')]",
-				"[concat(variables('factoryId'), '/datasets/ds_trgt_postgres')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_copy_data')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Lookup_audit",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": {
-									"value": "select table_id from ctrl.table_config where is_active=1 and source_system='@{pipeline().parameters.source_system}';",
-									"type": "Expression"
-								},
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "AzureSqlTable_audit",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "ForEach_ingest",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Lookup_audit",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Lookup_audit').output.value",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Set variable_test",
-									"type": "SetVariable",
-									"dependsOn": [],
-									"policy": {
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"variableName": "test",
-										"value": {
-											"value": "@string(item().table_id)",
-											"type": "Expression"
-										}
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"source_system": {
-						"type": "string",
-						"defaultValue": "neon_postgres"
-					}
-				},
-				"variables": {
-					"test": {
-						"type": "String"
-					}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_audit')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/pl_copy_data_silver')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -513,6 +373,84 @@
 								}
 							}
 						]
+					},
+					{
+						"name": "Landing_to_bronze",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "Copy data_postgres",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/caresync_repo/landing_to_bronze",
+							"baseParameters": {
+								"Landing Timestamp": {
+									"value": "@variables('start_time')",
+									"type": "Expression"
+								},
+								"Source System": {
+									"value": "@activity('Lookup_get_table_data').output.firstRow.source_system",
+									"type": "Expression"
+								},
+								"Table Name": {
+									"value": "@activity('Lookup_get_table_data').output.firstRow.bronze_table_name",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureDatabricks_caresync",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Bronze_to_Silver",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "Landing_to_bronze",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/caresync_repo/Bronze_to_Silver",
+							"baseParameters": {
+								"Landing Timestamp": {
+									"value": "@variables('start_time')",
+									"type": "Expression"
+								},
+								"Table Name": {
+									"value": "@activity('Lookup_get_table_data').output.firstRow.silver_table_name",
+									"type": "Expression"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureDatabricks_caresync",
+							"type": "LinkedServiceReference"
+						}
 					}
 				],
 				"policy": {
@@ -534,7 +472,128 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_audit')]",
 				"[concat(variables('factoryId'), '/datasets/PostgreSqlTable1')]",
-				"[concat(variables('factoryId'), '/datasets/ds_trgt_parquet')]"
+				"[concat(variables('factoryId'), '/datasets/ds_trgt_parquet')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDatabricks_caresync')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_copy_data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup_audit",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "select table_id from ctrl.table_config where is_active=1 and source_system='@{pipeline().parameters.source_system}';",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "AzureSqlTable_audit",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEach_ingest",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup_audit",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup_audit').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Set variable_test",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "test",
+										"value": {
+											"value": "@string(item().table_id)",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Execute Pipeline1",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "ForEach_ingest",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_copy_data_silver",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"source_system": {
+						"type": "string",
+						"defaultValue": "neon_postgres"
+					}
+				},
+				"variables": {
+					"test": {
+						"type": "String"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_audit')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_copy_data_silver')]"
 			]
 		}
 	]

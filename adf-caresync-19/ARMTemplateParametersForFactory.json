@@ -5,6 +5,9 @@
 		"factoryName": {
 			"value": "adf-caresync-19"
 		},
+		"AzureDatabricks_caresync_accessToken": {
+			"value": ""
+		},
 		"AzureSqlDatabase_audit_password": {
 			"value": ""
 		},
@@ -13,6 +16,9 @@
 		},
 		"LS_Postgres_password": {
 			"value": ""
+		},
+		"AzureDatabricks_caresync_properties_typeProperties_existingClusterId": {
+			"value": "1020-173017-v8h7t6e3"
 		},
 		"AzureSqlDatabase_audit_properties_typeProperties_server": {
 			"value": "beingdata-caresync.database.windows.net"
