@@ -5,6 +5,8 @@
 			{
 				"name": "Lookup_get_table_data",
 				"type": "Lookup",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -34,6 +36,8 @@
 			{
 				"name": "Set variable_timestamp",
 				"type": "SetVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"secureOutput": false,
@@ -51,6 +55,8 @@
 			{
 				"name": "Copy data_postgres",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Lookup_get_table_data",
@@ -124,6 +130,8 @@
 			{
 				"name": "Landing_to_bronze",
 				"type": "DatabricksNotebook",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Copy data_postgres",
@@ -163,8 +171,39 @@
 				}
 			},
 			{
-				"name": "Bronze_to_Silver",
+				"name": "update_success_status",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase_audit",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "update ctrl.audit_log \nset STATUS='SUCCESS',end_time=SYSUTCDATETIME(),\nrecords_written=@{activity('Bronze_to_Silver').output.runOutput}\nwhere adf_run_id='@{pipeline().parameters.adf_run_id}'and table_id=@{pipeline().parameters.table_id}",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "bronze_to_silver",
 				"type": "DatabricksNotebook",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Landing_to_bronze",
@@ -197,42 +236,6 @@
 				"linkedServiceName": {
 					"referenceName": "AzureDatabricks_caresync",
 					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "update_success_status",
-				"type": "Script",
-				"dependsOn": [
-					{
-						"activity": "Bronze_to_Silver",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"linkedServiceName": {
-					"referenceName": "AzureSqlDatabase_audit",
-					"type": "LinkedServiceReference"
-				},
-				"typeProperties": {
-					"scripts": [
-						{
-							"type": "Query",
-							"text": {
-								"value": "update ctrl.audit_log \nset STATUS='SUCCESS',end_time=SYSUTCDATETIME(),\nrecords_written=@{activity('Bronze_to_Silver').output.runOutput}\nwhere adf_run_id='@{pipeline().parameters.adf_run_id}'and table_id=@{pipeline().parameters.table_id}",
-								"type": "Expression"
-							}
-						}
-					],
-					"scriptBlockExecutionTimeout": "02:00:00"
 				}
 			}
 		],
