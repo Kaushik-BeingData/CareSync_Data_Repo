@@ -1,0 +1,32 @@
+{
+	"name": "ds_binary_file",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_CareSync",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"container_name": {
+				"type": "string"
+			},
+			"folder_name": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "@dataset().folder_name",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().container_name",
+					"type": "Expression"
+				}
+			}
+		}
+	}
+}
