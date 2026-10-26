@@ -256,7 +256,7 @@
 									{
 										"type": "Query",
 										"text": {
-											"value": "@update ctrl.watermark\nset watermark_value =SYSUTCDATETIME()\nwhere table_id=@{activity('Lookup_get_table_data').output.firstRow.table_id}",
+											"value": "update ctrl.watermark\nset watermark_value =SYSUTCDATETIME()\nwhere table_id=@{pipeline().parameters.table_id}",
 											"type": "Expression"
 										}
 									}
@@ -295,7 +295,7 @@
 						{
 							"type": "Query",
 							"text": {
-								"value": "update ctrl.audit_log \nset status='SUCCESS',end_time=SYSUTCDATETIME(),\nrecords_written=@{activity('Bronze_to_Silver').output.runOutput}\nwhere adf_run_id=@{pipeline().parameters.adf_run_id}and table_id=@{activity('Lookup_get_table_data').output.firstRow.table_id}",
+								"value": "update ctrl.audit_log \nset status='SUCCESS',end_time=SYSUTCDATETIME(),\nrecords_written=@{activity('Bronze_to_Silver').output.runOutput}\nwhere adf_run_id=@{pipeline().parameters.adf_run_id}and \ntable_id=@{pipeline().parameters.table_id}",
 								"type": "Expression"
 							}
 						}
@@ -431,7 +431,7 @@
 											"type": "DatasetReference",
 											"parameters": {
 												"folder": {
-													"value": "@activity('Lookup_get_table_data').output.firstRow.source_table_name",
+													"value": "@activity('Lookup_get_table_data').output.firstRow.source_path",
 													"type": "Expression"
 												}
 											}
