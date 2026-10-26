@@ -317,7 +317,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"on": {
-						"value": "@activity('Lookup_read_watermark_value').output.firstRow.source_system",
+						"value": "@activity('Lookup_get_table_data').output.firstRow.source_system",
 						"type": "Expression"
 					},
 					"cases": [
@@ -403,31 +403,44 @@
 									"userProperties": [],
 									"typeProperties": {
 										"source": {
-											"type": "BinarySource",
+											"type": "DelimitedTextSource",
 											"storeSettings": {
 												"type": "AzureBlobFSReadSettings",
-												"recursive": true
+												"recursive": true,
+												"enablePartitionDiscovery": false
 											},
 											"formatSettings": {
-												"type": "BinaryReadSettings"
+												"type": "DelimitedTextReadSettings"
 											}
 										},
 										"sink": {
-											"type": "BinarySink",
+											"type": "DelimitedTextSink",
 											"storeSettings": {
 												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
 											}
 										},
-										"enableStaging": false
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
 									},
 									"inputs": [
 										{
-											"referenceName": "ds_binary_file",
+											"referenceName": "ds_source_csv_file",
 											"type": "DatasetReference",
 											"parameters": {
-												"container_name": "source",
 												"folder_name": {
-													"value": "@activity('Lookup_read_watermark_value').output.firstRow.source_path",
+													"value": "@activity('Lookup_get_table_data').output.firstRow.source_path",
 													"type": "Expression"
 												}
 											}
@@ -435,10 +448,9 @@
 									],
 									"outputs": [
 										{
-											"referenceName": "ds_binary_file",
+											"referenceName": "ds_trgt_csv_file",
 											"type": "DatasetReference",
 											"parameters": {
-												"container_name": "landing",
 												"folder_name": {
 													"value": "@concat(\n    activity('Lookup_get_table_data').output.firstRow.source_system,\n    '/',\n    activity('Lookup_get_table_data').output.firstRow.source_table_name,\n    '/',\n    variables('start_time')\n)",
 													"type": "Expression"

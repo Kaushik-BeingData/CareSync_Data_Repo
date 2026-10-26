@@ -5,12 +5,20 @@
 			"referenceName": "LS_CareSync",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"folder_name": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "insurance_providers",
+				"folderPath": {
+					"value": "@dataset().folder_name",
+					"type": "Expression"
+				},
 				"fileSystem": "source"
 			},
 			"columnDelimiter": ",",
