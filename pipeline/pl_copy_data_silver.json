@@ -81,6 +81,10 @@
 						"Table Name": {
 							"value": "@activity('Lookup_get_table_data').output.firstRow.bronze_table_name",
 							"type": "Expression"
+						},
+						"source_system_name": {
+							"value": "@coalesce(activity('Lookup_read_watermark_value').output.firstRow.source_file_format,'')\n\n\n\n",
+							"type": "Expression"
 						}
 					}
 				},
@@ -451,11 +455,12 @@
 		],
 		"parameters": {
 			"table_id": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "5"
 			},
 			"adf_run_id": {
 				"type": "int",
-				"defaultValue": 127
+				"defaultValue": 129
 			}
 		},
 		"variables": {
