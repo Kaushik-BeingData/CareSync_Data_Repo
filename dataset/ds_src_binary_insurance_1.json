@@ -1,0 +1,19 @@
+{
+	"name": "ds_src_binary_insurance_1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_CareSync",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "insurance_providers.csv",
+				"folderPath": "insurance_providers",
+				"fileSystem": "source"
+			}
+		}
+	}
+}

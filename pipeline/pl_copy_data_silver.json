@@ -53,7 +53,7 @@
 				"type": "DatabricksNotebook",
 				"dependsOn": [
 					{
-						"activity": "Switch_soucre_system",
+						"activity": "switch_soucre_system",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -70,20 +70,20 @@
 				"typeProperties": {
 					"notebookPath": "/caresync_repo/landing_to_bronze",
 					"baseParameters": {
-						"Landing Timestamp": {
-							"value": "@variables('start_time')",
-							"type": "Expression"
-						},
-						"Source System": {
+						"source_system": {
 							"value": "@activity('Lookup_get_table_data').output.firstRow.source_system",
 							"type": "Expression"
 						},
-						"Table Name": {
-							"value": "@activity('Lookup_get_table_data').output.firstRow.bronze_table_name",
+						"table_name": {
+							"value": "@activity('Lookup_get_table_data').output.firstRow.source_table_name",
 							"type": "Expression"
 						},
-						"source_system_name": {
-							"value": "@coalesce(activity('Lookup_read_watermark_value').output.firstRow.source_file_format,'')\n\n\n\n",
+						"landing_timestamp": {
+							"value": "@variables('start_time')",
+							"type": "Expression"
+						},
+						"source_file_type": {
+							"value": "@coalesce(activity('Lookup_get_table_data').output.firstRow.source_file_type,'')",
 							"type": "Expression"
 						}
 					}
@@ -304,7 +304,7 @@
 				}
 			},
 			{
-				"name": "Switch_soucre_system",
+				"name": "switch_soucre_system",
 				"type": "Switch",
 				"dependsOn": [
 					{
@@ -403,55 +403,35 @@
 									"userProperties": [],
 									"typeProperties": {
 										"source": {
-											"type": "DelimitedTextSource",
+											"type": "BinarySource",
 											"storeSettings": {
 												"type": "AzureBlobFSReadSettings",
-												"recursive": true,
-												"enablePartitionDiscovery": false
+												"recursive": true
 											},
 											"formatSettings": {
-												"type": "DelimitedTextReadSettings"
+												"type": "BinaryReadSettings"
 											}
 										},
 										"sink": {
-											"type": "DelimitedTextSink",
+											"type": "BinarySink",
 											"storeSettings": {
 												"type": "AzureBlobFSWriteSettings"
-											},
-											"formatSettings": {
-												"type": "DelimitedTextWriteSettings",
-												"quoteAllText": true,
-												"fileExtension": ".txt"
 											}
 										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
+										"enableStaging": false
 									},
 									"inputs": [
 										{
-											"referenceName": "ds_source_csv_file",
-											"type": "DatasetReference",
-											"parameters": {
-												"folder_name": {
-													"value": "@activity('Lookup_get_table_data').output.firstRow.source_path",
-													"type": "Expression"
-												}
-											}
+											"referenceName": "ds_src_binary_insurance_1",
+											"type": "DatasetReference"
 										}
 									],
 									"outputs": [
 										{
-											"referenceName": "ds_trgt_csv_file",
+											"referenceName": "ds_trgt_copy_insurance_file",
 											"type": "DatasetReference",
 											"parameters": {
-												"folder_name": {
+												"folder": {
 													"value": "@concat(\n    activity('Lookup_get_table_data').output.firstRow.source_system,\n    '/',\n    activity('Lookup_get_table_data').output.firstRow.source_table_name,\n    '/',\n    variables('start_time')\n)",
 													"type": "Expression"
 												}
