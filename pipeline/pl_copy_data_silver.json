@@ -256,7 +256,7 @@
 									{
 										"type": "Query",
 										"text": {
-											"value": "update ctrl.watermark\nset watermark_value =SYSUTCDATETIME()\nwhere table_id=@{pipeline().parameters.table_id}",
+											"value": "@update ctrl.watermark\nset watermark_value =SYSUTCDATETIME()\nwhere table_id=@{activity('Lookup_get_table_data').output.firstRow.table_id}",
 											"type": "Expression"
 										}
 									}
@@ -295,7 +295,7 @@
 						{
 							"type": "Query",
 							"text": {
-								"value": "update ctrl.audit_log \nset status='SUCCESS',end_time=SYSUTCDATETIME(),\nrecords_written=@{activity('Bronze_to_Silver').output.runOutput}\nwhere adf_run_id=@{pipeline().parameters.adf_run_id}and table_id=@{pipeline().parameters.table_id}",
+								"value": "update ctrl.audit_log \nset status='SUCCESS',end_time=SYSUTCDATETIME(),\nrecords_written=@{activity('Bronze_to_Silver').output.runOutput}\nwhere adf_run_id=@{pipeline().parameters.adf_run_id}and table_id=@{activity('Lookup_get_table_data').output.firstRow.table_id}",
 								"type": "Expression"
 							}
 						}
@@ -406,7 +406,12 @@
 											"type": "BinarySource",
 											"storeSettings": {
 												"type": "AzureBlobFSReadSettings",
-												"recursive": true
+												"recursive": true,
+												"modifiedDatetimeStart": {
+													"value": "@variables('watermark_value')",
+													"type": "Expression"
+												},
+												"deleteFilesAfterCompletion": false
 											},
 											"formatSettings": {
 												"type": "BinaryReadSettings"
@@ -423,7 +428,13 @@
 									"inputs": [
 										{
 											"referenceName": "ds_src_binary_insurance_1",
-											"type": "DatasetReference"
+											"type": "DatasetReference",
+											"parameters": {
+												"folder": {
+													"value": "@activity('Lookup_get_table_data').output.firstRow.source_table_name",
+													"type": "Expression"
+												}
+											}
 										}
 									],
 									"outputs": [
@@ -448,11 +459,11 @@
 		"parameters": {
 			"table_id": {
 				"type": "string",
-				"defaultValue": "5"
+				"defaultValue": "4"
 			},
 			"adf_run_id": {
 				"type": "int",
-				"defaultValue": 129
+				"defaultValue": 132
 			}
 		},
 		"variables": {
