@@ -176,6 +176,198 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_binary_file')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_CareSync",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"container_name": {
+						"type": "string"
+					},
+					"folder_name": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@dataset().folder_name",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().container_name",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_CareSync')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_source_csv_file')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_CareSync",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@dataset().folder",
+							"type": "Expression"
+						},
+						"fileSystem": "source"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "insurance_provider_id",
+						"type": "String"
+					},
+					{
+						"name": "provider_name",
+						"type": "String"
+					},
+					{
+						"name": "provider_type",
+						"type": "String"
+					},
+					{
+						"name": "contact_email",
+						"type": "String"
+					},
+					{
+						"name": "coverage_region",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_CareSync')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_src_binary_insurance_1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_CareSync",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@dataset().folder",
+							"type": "Expression"
+						},
+						"fileSystem": "source"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_CareSync')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_trgt_copy_insurance_file')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_CareSync",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@dataset().folder",
+							"type": "Expression"
+						},
+						"fileSystem": "landing"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_CareSync')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_trgt_csv_file')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_CareSync",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"folder_name": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@dataset().folder_name",
+							"type": "Expression"
+						},
+						"fileSystem": "landing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_CareSync')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_trgt_parquet')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -301,79 +493,11 @@
 						}
 					},
 					{
-						"name": "Copy data_postgres",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "If Condition_load_type",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "PostgreSqlV2Source",
-								"query": {
-									"value": "select * from public.@{activity('Lookup_get_table_data').output.firstRow.source_table_name}\n@{\n    if(equals(activity('Lookup_get_table_data').output.firstRow.load_type,'FULL')\n        ,'',\n        concat(\n            'where ',activity('Lookup_get_table_data').output.firstRow.watermark_column ,'>','''',variables('watermark_value'),''''\n        )\n    )\n}",
-									"type": "Expression"
-								},
-								"queryTimeout": "02:00:00"
-							},
-							"sink": {
-								"type": "ParquetSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "ParquetWriteSettings"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "PostgreSqlTable1",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ds_trgt_parquet",
-								"type": "DatasetReference",
-								"parameters": {
-									"container": "landing",
-									"folder": {
-										"value": "@concat(\n    activity('Lookup_get_table_data').output.firstRow.source_system,\n    '/',\n    activity('Lookup_get_table_data').output.firstRow.source_table_name,\n    '/',\n    variables('start_time')\n)",
-										"type": "Expression"
-									}
-								}
-							}
-						]
-					},
-					{
 						"name": "Landing_to_bronze",
 						"type": "DatabricksNotebook",
 						"dependsOn": [
 							{
-								"activity": "Copy data_postgres",
+								"activity": "switch_soucre_system",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -390,16 +514,20 @@
 						"typeProperties": {
 							"notebookPath": "/caresync_repo/landing_to_bronze",
 							"baseParameters": {
-								"Landing Timestamp": {
-									"value": "@variables('start_time')",
-									"type": "Expression"
-								},
-								"Source System": {
+								"source_system": {
 									"value": "@activity('Lookup_get_table_data').output.firstRow.source_system",
 									"type": "Expression"
 								},
-								"Table Name": {
-									"value": "@activity('Lookup_get_table_data').output.firstRow.bronze_table_name",
+								"table_name": {
+									"value": "@activity('Lookup_get_table_data').output.firstRow.source_table_name",
+									"type": "Expression"
+								},
+								"landing_timestamp": {
+									"value": "@variables('start_time')",
+									"type": "Expression"
+								},
+								"source_file_type": {
+									"value": "@coalesce(activity('Lookup_get_table_data').output.firstRow.source_file_format,'')",
 									"type": "Expression"
 								}
 							}
@@ -612,12 +740,165 @@
 								{
 									"type": "Query",
 									"text": {
-										"value": "update ctrl.audit_log \nset status='SUCCESS',end_time=SYSUTCDATETIME(),\nrecords_written=@{activity('Bronze_to_Silver').output.runOutput}\nwhere adf_run_id=@{pipeline().parameters.adf_run_id}and table_id=@{pipeline().parameters.table_id}",
+										"value": "update ctrl.audit_log \nset status='SUCCESS',end_time=SYSUTCDATETIME(),\nrecords_written=@{activity('Bronze_to_Silver').output.runOutput}\nwhere adf_run_id=@{pipeline().parameters.adf_run_id}and \ntable_id=@{pipeline().parameters.table_id}",
 										"type": "Expression"
 									}
 								}
 							],
 							"scriptBlockExecutionTimeout": "02:00:00"
+						}
+					},
+					{
+						"name": "switch_soucre_system",
+						"type": "Switch",
+						"dependsOn": [
+							{
+								"activity": "If Condition_load_type",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"on": {
+								"value": "@activity('Lookup_get_table_data').output.firstRow.source_system",
+								"type": "Expression"
+							},
+							"cases": [
+								{
+									"value": "neon_postgres",
+									"activities": [
+										{
+											"name": "Copy data_postgres",
+											"type": "Copy",
+											"dependsOn": [],
+											"policy": {
+												"timeout": "0.12:00:00",
+												"retry": 0,
+												"retryIntervalInSeconds": 30,
+												"secureOutput": false,
+												"secureInput": false
+											},
+											"userProperties": [],
+											"typeProperties": {
+												"source": {
+													"type": "PostgreSqlV2Source",
+													"query": {
+														"value": "select * from public.@{activity('Lookup_get_table_data').output.firstRow.source_table_name}\n@{\n    if(equals(activity('Lookup_get_table_data').output.firstRow.load_type,'FULL')\n        ,'',\n        concat(\n            'where ',activity('Lookup_get_table_data').output.firstRow.watermark_column ,'>','''',variables('watermark_value'),''''\n        )\n    )\n}",
+														"type": "Expression"
+													},
+													"queryTimeout": "02:00:00"
+												},
+												"sink": {
+													"type": "ParquetSink",
+													"storeSettings": {
+														"type": "AzureBlobFSWriteSettings"
+													},
+													"formatSettings": {
+														"type": "ParquetWriteSettings"
+													}
+												},
+												"enableStaging": false,
+												"translator": {
+													"type": "TabularTranslator",
+													"typeConversion": true,
+													"typeConversionSettings": {
+														"allowDataTruncation": true,
+														"treatBooleanAsNumber": false
+													}
+												}
+											},
+											"inputs": [
+												{
+													"referenceName": "PostgreSqlTable1",
+													"type": "DatasetReference",
+													"parameters": {}
+												}
+											],
+											"outputs": [
+												{
+													"referenceName": "ds_trgt_parquet",
+													"type": "DatasetReference",
+													"parameters": {
+														"container": "landing",
+														"folder": {
+															"value": "@concat(\n    activity('Lookup_get_table_data').output.firstRow.source_system,\n    '/',\n    activity('Lookup_get_table_data').output.firstRow.source_table_name,\n    '/',\n    variables('start_time')\n)",
+															"type": "Expression"
+														}
+													}
+												}
+											]
+										}
+									]
+								},
+								{
+									"value": "adls_csv",
+									"activities": [
+										{
+											"name": "Copy data_csv",
+											"type": "Copy",
+											"dependsOn": [],
+											"policy": {
+												"timeout": "0.12:00:00",
+												"retry": 0,
+												"retryIntervalInSeconds": 30,
+												"secureOutput": false,
+												"secureInput": false
+											},
+											"userProperties": [],
+											"typeProperties": {
+												"source": {
+													"type": "BinarySource",
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"modifiedDatetimeStart": {
+															"value": "@variables('watermark_value')",
+															"type": "Expression"
+														},
+														"deleteFilesAfterCompletion": false
+													},
+													"formatSettings": {
+														"type": "BinaryReadSettings"
+													}
+												},
+												"sink": {
+													"type": "BinarySink",
+													"storeSettings": {
+														"type": "AzureBlobFSWriteSettings"
+													}
+												},
+												"enableStaging": false
+											},
+											"inputs": [
+												{
+													"referenceName": "ds_src_binary_insurance_1",
+													"type": "DatasetReference",
+													"parameters": {
+														"folder": {
+															"value": "@activity('Lookup_get_table_data').output.firstRow.source_path",
+															"type": "Expression"
+														}
+													}
+												}
+											],
+											"outputs": [
+												{
+													"referenceName": "ds_trgt_copy_insurance_file",
+													"type": "DatasetReference",
+													"parameters": {
+														"folder": {
+															"value": "@concat(\n    activity('Lookup_get_table_data').output.firstRow.source_system,\n    '/',\n    activity('Lookup_get_table_data').output.firstRow.source_table_name,\n    '/',\n    variables('start_time')\n)",
+															"type": "Expression"
+														}
+													}
+												}
+											]
+										}
+									]
+								}
+							]
 						}
 					}
 				],
@@ -627,11 +908,11 @@
 				"parameters": {
 					"table_id": {
 						"type": "string",
-						"defaultValue": "3"
+						"defaultValue": "4"
 					},
 					"adf_run_id": {
 						"type": "int",
-						"defaultValue": 127
+						"defaultValue": 132
 					}
 				},
 				"variables": {
@@ -646,14 +927,16 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_audit')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDatabricks_caresync')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_audit')]",
 				"[concat(variables('factoryId'), '/datasets/PostgreSqlTable1')]",
 				"[concat(variables('factoryId'), '/datasets/ds_trgt_parquet')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureDatabricks_caresync')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_audit')]"
+				"[concat(variables('factoryId'), '/datasets/ds_src_binary_insurance_1')]",
+				"[concat(variables('factoryId'), '/datasets/ds_trgt_copy_insurance_file')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_copy_data')]",
+			"name": "[concat(parameters('factoryName'), '/pl_source_to_silver')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -811,11 +1094,11 @@
 				"parameters": {
 					"source_system": {
 						"type": "string",
-						"defaultValue": "neon_postgres"
+						"defaultValue": "adls_csv"
 					},
 					"adf_run_id": {
 						"type": "int",
-						"defaultValue": 127
+						"defaultValue": 135
 					}
 				},
 				"variables": {
