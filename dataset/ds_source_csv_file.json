@@ -1,0 +1,44 @@
+{
+	"name": "ds_source_csv_file",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_CareSync",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "insurance_providers",
+				"fileSystem": "source"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "insurance_provider_id",
+				"type": "String"
+			},
+			{
+				"name": "provider_name",
+				"type": "String"
+			},
+			{
+				"name": "provider_type",
+				"type": "String"
+			},
+			{
+				"name": "contact_email",
+				"type": "String"
+			},
+			{
+				"name": "coverage_region",
+				"type": "String"
+			}
+		]
+	}
+}
