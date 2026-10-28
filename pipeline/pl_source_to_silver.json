@@ -147,6 +147,23 @@
 								],
 								"scriptBlockExecutionTimeout": "02:00:00"
 							}
+						},
+						{
+							"name": "fial_overall_pipeline",
+							"type": "Fail",
+							"dependsOn": [
+								{
+									"activity": "Execute Pipeline_inner_copy_data_silver",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"message": "Inner pipeline has failed.",
+								"errorCode": "500"
+							}
 						}
 					]
 				}
