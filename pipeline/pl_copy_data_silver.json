@@ -462,8 +462,8 @@
 				"defaultValue": "4"
 			},
 			"adf_run_id": {
-				"type": "int",
-				"defaultValue": 132
+				"type": "string",
+				"defaultValue": "132"
 			}
 		},
 		"variables": {
