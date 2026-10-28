@@ -717,7 +717,7 @@
 						"type": "Script",
 						"dependsOn": [
 							{
-								"activity": "If Condition_check_and_update_watermark",
+								"activity": "bronze_to_silver",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1119,6 +1119,23 @@
 											}
 										],
 										"scriptBlockExecutionTimeout": "02:00:00"
+									}
+								},
+								{
+									"name": "fail_activity_gold_layer",
+									"type": "Fail",
+									"dependsOn": [
+										{
+											"activity": "silver_to_gold",
+											"dependencyConditions": [
+												"Failed"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"message": "Gold notebook failed",
+										"errorCode": "500"
 									}
 								}
 							]
