@@ -187,8 +187,8 @@
 		],
 		"parameters": {
 			"adf_run_id": {
-				"type": "string",
-				"defaultValue": "136"
+				"type": "int",
+				"defaultValue": 136
 			}
 		},
 		"variables": {
