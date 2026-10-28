@@ -272,7 +272,7 @@
 				"type": "Script",
 				"dependsOn": [
 					{
-						"activity": "If Condition_check_and_update_watermark",
+						"activity": "bronze_to_silver",
 						"dependencyConditions": [
 							"Succeeded"
 						]

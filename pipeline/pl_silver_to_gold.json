@@ -180,6 +180,23 @@
 								],
 								"scriptBlockExecutionTimeout": "02:00:00"
 							}
+						},
+						{
+							"name": "fail_overall_pipeline",
+							"type": "Fail",
+							"dependsOn": [
+								{
+									"activity": "silver_to_gold",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"message": "Inner pipeline has failed.",
+								"errorCode": "500"
+							}
 						}
 					]
 				}
