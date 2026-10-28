@@ -911,8 +911,8 @@
 						"defaultValue": "4"
 					},
 					"adf_run_id": {
-						"type": "int",
-						"defaultValue": 132
+						"type": "string",
+						"defaultValue": "132"
 					}
 				},
 				"variables": {
@@ -1330,8 +1330,8 @@
 						"defaultValue": "adls_csv"
 					},
 					"adf_run_id": {
-						"type": "int",
-						"defaultValue": 135
+						"type": "string",
+						"defaultValue": "135"
 					}
 				},
 				"variables": {
