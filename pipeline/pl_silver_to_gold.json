@@ -4,6 +4,7 @@
 		"activities": [
 			{
 				"name": "Lookup_audit",
+				"description": "Getting table_id and tablename from this lookup",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
